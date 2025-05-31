@@ -1,6 +1,10 @@
 import pytest
 from main import BooksCollector
 
+@pytest.fixture()
+def collector():
+    return BooksCollector()
+
 class TestBooksCollector:
 
     @pytest.mark.parametrize('book_name, expected_in_collection', [
@@ -11,9 +15,7 @@ class TestBooksCollector:
         ('Замок на краю света или пропавшая комната', False), #41 символ
         ('Призрачный огонь незабвенной памяти или Як', False) #42 символа
         ])
-    def test_add_new_book_accepts_only_names_within_length_limit(self, book_name, expected_in_collection):
-        collector = BooksCollector()
-
+    def test_add_new_book_accepts_only_names_within_length_limit(self, collector, book_name, expected_in_collection):
         collector.add_new_book(book_name)
 
         if expected_in_collection:
@@ -21,16 +23,13 @@ class TestBooksCollector:
         else:
             assert book_name not in collector.get_books_genre()
 
-    def test_add_new_book_does_not_add_already_existing_book(self):
-        collector = BooksCollector()
-
+    def test_add_new_book_does_not_add_already_existing_book(self, collector):
         collector.add_new_book('Тайна забытого ключа')
         collector.add_new_book('Тайна забытого ключа') #дубликат
 
         assert len(collector.get_books_genre()) == 1
 
-    def test_add_new_book_adds_books_with_empty_genre(self):
-        collector = BooksCollector()
+    def test_add_new_book_adds_books_with_empty_genre(self, collector):
         expected_result = {'Тайна забытого ключа': '', 'Тайна забытой книги': ''} #книга добавляется без жанра
 
         collector.add_new_book('Тайна забытого ключа')
@@ -43,9 +42,7 @@ class TestBooksCollector:
         ('Тайна ледяного озера или Забытый дневник', 'Ужасы', None), #несущ. книга и сущ. жанр
         ('Тайна забытой книги', 'Боевик', '') #сущ. книга и несущ. жанр
         ])
-    def test_set_book_genre_works_only_for_existing_books_and_valid_genres(self, book_name, book_genre, expected_genre):
-        collector = BooksCollector()
-
+    def test_set_book_genre_works_only_for_existing_books_and_valid_genres(self, collector, book_name, book_genre, expected_genre):
         collector.add_new_book('Тайна забытого ключа')
         collector.add_new_book('Тайна забытой книги')
         collector.set_book_genre(book_name, book_genre)
@@ -57,9 +54,7 @@ class TestBooksCollector:
         ('Тайна забытой книги', ''), #сущ. книга без жанра
         ('Тайна ледяного озера или Забытый дневник', None) #несущ. книга
         ])
-    def test_get_book_genre_returns_correct_genre_for_all_input_types(self, book_name, expected_genre):
-        collector = BooksCollector()
-
+    def test_get_book_genre_returns_correct_genre_for_all_input_types(self, collector, book_name, expected_genre):
         collector.add_new_book('Тайна забытого ключа')
         collector.add_new_book('Тайна забытой книги')
         collector.set_book_genre('Тайна забытого ключа', 'Фантастика')
@@ -70,9 +65,7 @@ class TestBooksCollector:
         ('Фантастика', True), #сущ. жанр
         ('Боевик', False) #несущ. жанр
         ])
-    def test_get_books_with_specific_genre_returns_correct_list_for_valid_and_invalid_genres(self, genre, expected_in_list):
-        collector = BooksCollector()
-
+    def test_get_books_with_specific_genre_returns_correct_list_for_valid_and_invalid_genres(self, collector, genre, expected_in_list):
         collector.add_new_book('Тайна забытого ключа')
         collector.add_new_book('Тайна забытой книги')
         collector.set_book_genre('Тайна забытого ключа', 'Фантастика')
@@ -83,8 +76,7 @@ class TestBooksCollector:
         else:
             assert len(collector.get_books_with_specific_genre(genre)) == 0
 
-    def test_get_books_genre_returns_full_dictionary(self):
-        collector = BooksCollector()
+    def test_get_books_genre_returns_full_dictionary(self, collector):
         expexted_result = {'Тайна забытого ключа': 'Фантастика', 'Тайна забытой книги': ''}
 
         collector.add_new_book('Тайна забытого ключа') #книга с жанром
@@ -93,8 +85,7 @@ class TestBooksCollector:
 
         assert collector.get_books_genre() == expexted_result
 
-    def test_get_books_for_children_returns_only_child_friendly_books(self):
-        collector = BooksCollector()
+    def test_get_books_for_children_returns_only_child_friendly_books(self, collector):
         expected_result = ['Тайна забытого ключа']
 
         collector.add_new_book('Тайна забытого ключа') #книга с жанром без возрастного рейтинга
@@ -109,9 +100,7 @@ class TestBooksCollector:
         ('Тайна забытого ключа', True),  # сущ. книга
         ('Тайна забытой книги', False)  # несущ. книга
     ])
-    def test_add_book_in_favorites_works_only_for_existing_books(self, book_name, expected_in_list):
-        collector = BooksCollector()
-
+    def test_add_book_in_favorites_works_only_for_existing_books(self, collector, book_name, expected_in_list):
         collector.add_new_book('Тайна забытого ключа')
         collector.add_book_in_favorites(book_name)
 
@@ -120,9 +109,7 @@ class TestBooksCollector:
         else:
             assert book_name not in collector.get_list_of_favorites_books()
 
-    def test_add_book_in_favorites_does_not_add_already_existing_book(self):
-        collector = BooksCollector()
-
+    def test_add_book_in_favorites_does_not_add_already_existing_book(self, collector):
         collector.add_new_book('Тайна забытого ключа')
         collector.add_book_in_favorites('Тайна забытого ключа')
         collector.add_book_in_favorites('Тайна забытого ключа') #дубликат
@@ -133,9 +120,7 @@ class TestBooksCollector:
         'Тайна забытого ключа', #книга в избранном
         'Тайна забытой книги' #книга не в избранном
         ])
-    def test_delete_book_from_favorites_removes_book_successfully(self, book_name):
-        collector = BooksCollector()
-
+    def test_delete_book_from_favorites_removes_book_successfully(self, collector, book_name):
         collector.add_new_book('Тайна забытого ключа')
         collector.add_new_book('Тайна забытой книги')
         collector.add_book_in_favorites('Тайна забытого ключа')
@@ -143,8 +128,7 @@ class TestBooksCollector:
 
         assert book_name not in collector.get_list_of_favorites_books()
 
-    def test_get_list_of_favorites_books_returns_full_list(self):
-        collector = BooksCollector()
+    def test_get_list_of_favorites_books_returns_full_list(self, collector):
         expected_result = ['Тайна забытого ключа', 'Тайна забытой книги']
 
         collector.add_new_book('Тайна забытого ключа')
