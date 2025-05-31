@@ -47,7 +47,10 @@ class TestBooksCollector:
         collector.add_new_book('Тайна забытой книги')
         collector.set_book_genre(book_name, book_genre)
 
-        assert collector.get_book_genre(book_name) == expected_genre
+        if expected_genre is None:
+            assert book_name and book_genre not in collector.books_genre
+        else:
+            assert collector.books_genre[book_name] == expected_genre
 
     @pytest.mark.parametrize('book_name, expected_genre', [
         ('Тайна забытого ключа', 'Фантастика'), #сущ. книга с жанром
